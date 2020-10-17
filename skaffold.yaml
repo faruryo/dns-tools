@@ -1,0 +1,15 @@
+apiVersion: skaffold/v2beta7
+kind: Config
+metadata:
+  name: dns-tools
+build:
+  artifacts:
+    - image: dns-tools
+      docker:
+        dockerfile: Dockerfile
+  local:
+    useBuildkit: true
+deploy:
+  kubectl:
+    manifests:
+      - kubernetes/tools.yaml

@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dns-tools
+  name: dns-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dns-tools
+  template:
+    metadata:
+      labels:
+        app: dns-tools
+    spec:
+      containers:
+        - name: tools
+          image: dns-tools
+          imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: dns-tools
+          env:
+            - name: "DNS_DOMAIN"
+              value: "faru.jp"
+            - name: "LOOP_INTERVAL"
+              value: "10s"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
