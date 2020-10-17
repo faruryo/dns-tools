@@ -1,3 +1,5 @@
+![Docker](https://github.com/faruryo/dns-tools/workflows/Docker/badge.svg)
+
 ## secretセットアップ
 
 ```shell
