@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
-RUN go build -o /go-app main.go
+RUN GOOS=linux go build -mod=readonly  -v  -o /go-app main.go
 
 FROM alpine:3.12
 COPY --from=builder /go-app .
