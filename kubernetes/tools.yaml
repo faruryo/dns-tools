@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dns-tools
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dns-tools
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create", "update", "get"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dns-tools
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dns-tools
+subjects:
+- kind: ServiceAccount
+  name: dns-tools
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dns-tools
+  name: dns-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dns-tools
+  template:
+    metadata:
+      labels:
+        app: dns-tools
+    spec:
+      serviceAccountName: dns-tools
+      containers:
+        - name: tools
+          image: dns-tools
+          imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: dns-tools
+          env:
+            - name: "DNS_DOMAIN"
+              value: "faru.jp"
+            - name: "LOOP_INTERVAL"
+              value: "10s"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"

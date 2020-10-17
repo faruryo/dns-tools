@@ -1,0 +1,9 @@
+.github
+.git
+.vscode
+kubernetes
+Dockerfile
+LICENSE
+README.md
+renovate.json
+skaffold.yaml
