@@ -7,8 +7,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
-RUN GOOS=linux go build -mod=readonly  -v  -o /go-app main.go
+RUN GOOS=linux go build -mod=readonly  -v  -o /dns-tools main.go
 
 FROM alpine:3.12
-COPY --from=builder /go-app .
-ENTRYPOINT ["./go-app"]
+COPY --from=builder /dns-tools .
+ENTRYPOINT ["./dns-tools", "gip"]

@@ -1,18 +1,28 @@
 ![Docker](https://github.com/faruryo/dns-tools/workflows/Docker/badge.svg)
 
-## secretセットアップ
+
+## Developing
+
+### skaffold
 
 ```shell
-SLACK_WEBHOOK_URL="hoge"
-CLOUDFLARE_API_TOKEN="fuga"
-
-kubectl create secret generic dns-tools \
-    --from-literal=SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL \
-    --from-literal=CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN
+skaffold dev --port-forward
 ```
 
-## 参考
+### Knative Eventing setup
 
-- [Build a GraphQL API in Golang with MySQL and GORM using Gqlgen | SoberKoder](https://www.soberkoder.com/go-graphql-api-mysql-gorm/)
-- [gqlgen + Gorm でUint型の場合エラーになる - Qiita](https://qiita.com/3104k/items/caf17633d4926aee8a84)
-- [Golang テスト sqlmock | 実務のGo](https://www.go-lang-programming.com/doc/test/sqlmock)
+install
+```
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.18.0/eventing-crds.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.18.0/eventing-core.yaml
+
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.18.0/in-memory-channel.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.18.0/mt-channel-broker.yaml
+```
+
+check
+```
+kubectl get pods -n knative-eventing
+```
+
+[Installing Knative | Knative](https://knative.dev/docs/install/any-kubernetes-cluster/)

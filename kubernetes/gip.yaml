@@ -47,14 +47,10 @@ spec:
         - name: tools
           image: dns-tools
           imagePullPolicy: Never
+          args: ["gip", "--nilfire"]
           envFrom:
             - secretRef:
                 name: dns-tools
-          env:
-            - name: "DNS_DOMAIN"
-              value: "faru.jp"
-            - name: "LOOP_INTERVAL"
-              value: "10s"
           resources:
             requests:
               memory: "64Mi"
