@@ -1,0 +1,71 @@
+---
+apiVersion: eventing.knative.dev/v1
+kind: broker
+metadata:
+  name: gip
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-display
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: event-display
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: event-display
+          image: gcr.io/knative-releases/knative.dev/eventing-contrib/cmd/event_display
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: event-display
+spec:
+  selector:
+    app: event-display
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+
+---
+apiVersion: sources.knative.dev/v1beta1
+kind: SinkBinding
+metadata:
+  name: dns-tools
+spec:
+  subject:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: dns-tools
+
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: broker
+      name: gip
+  ceOverrides:
+    extensions:
+      sink: bound
+
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: event-display
+spec:
+  broker: gip
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: event-display
