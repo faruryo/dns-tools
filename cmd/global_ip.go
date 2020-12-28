@@ -127,10 +127,12 @@ func postCloudEvent(obj interface{}) error {
 	event := cloudevents.NewEvent()
 	event.SetSource("github.com/faruryo/dns-tools/cmd/postCloudEvent")
 	event.SetType("github.com/faruryo/dns-tools/cmd/ChangeGlobalIP")
-	err = event.SetData(
+	if err := event.SetData(
 		cloudevents.ApplicationJSON,
 		obj,
-	)
+	); err != nil {
+		return fmt.Errorf("failed SetData, %v : %s", obj, err)
+	}
 
 	// Set a target.
 	ctx := cloudevents.ContextWithTarget(context.TODO(), cloudEventsTarget)

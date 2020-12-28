@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
+	"strings"
 
 	"github.com/cloudflare/cloudflare-go"
 	"github.com/spf13/cobra"
@@ -30,39 +32,52 @@ The environment variables must be set.
 		},
 		Run: flareRun,
 	}
-	newIP net.IP
 )
 
 const (
-	// EnvCloudflareAPIToken is a config key for the cloudflare api token.
-	EnvCloudflareAPIToken string = "cloudflare_api_token"
-	// EnvDNSDomain is a config key for the DNS Domain.
-	EnvDNSDomain string = "dns_domain"
+	// ViperKeyCloudflareAPIToken is a viper key for the cloudflare api token.
+	ViperKeyCloudflareAPIToken string = "cloudflare.api.token"
+	// ViperKeyDNSDomain is a viper key for the DNS Domain.
+	ViperKeyDNSDomain string = "dns.domain"
+	// ViperKeyFQDNFilters is a viper key for the FQDN filters.
+	ViperKeyFQDNFilters string = "fqdn.filters"
+	// ViperKeyFQDNIgnoreFilters is a viper key for the FQDN ignore filters.
+	ViperKeyFQDNIgnoreFilters string = "fqdn.ignore.filters"
 )
 
 func init() {
+	flare.PersistentFlags().String(ViperKeyCloudflareAPIToken, "", "cloudflare api token")
+	flare.PersistentFlags().String(ViperKeyDNSDomain, "", "DNS Domain")
+	flare.PersistentFlags().StringSlice(ViperKeyFQDNFilters, []string{}, "FQDN filters")
+	flare.PersistentFlags().StringSlice(ViperKeyFQDNIgnoreFilters, []string{}, "FQDN ignore filters")
+
+	if err := viper.BindPFlags(flare.PersistentFlags()); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	rootCmd.AddCommand(flare)
 }
 
 func flareValidate() error {
-	if len(viper.GetString(EnvCloudflareAPIToken)) == 0 {
-		return fmt.Errorf("config not set %s", EnvCloudflareAPIToken)
+	if len(viper.GetString(ViperKeyCloudflareAPIToken)) == 0 {
+		return fmt.Errorf("config not set %s", ViperKeyCloudflareAPIToken)
 	}
-	if len(viper.GetString(EnvDNSDomain)) == 0 {
-		return fmt.Errorf("config not set %s", EnvDNSDomain)
+	if len(viper.GetString(ViperKeyDNSDomain)) == 0 {
+		return fmt.Errorf("config not set %s", ViperKeyDNSDomain)
 	}
 	return nil
 }
 
 func updateDNSARecords(cIP net.IP) error {
-	cfAPI, err := cloudflare.NewWithAPIToken(viper.GetString(EnvCloudflareAPIToken))
+	cfAPI, err := cloudflare.NewWithAPIToken(viper.GetString(ViperKeyCloudflareAPIToken))
 	if err != nil {
 		return err
 	}
 
-	id, err := cfAPI.ZoneIDByName(viper.GetString(EnvDNSDomain))
+	id, err := cfAPI.ZoneIDByName(viper.GetString(ViperKeyDNSDomain))
 	if err != nil {
 		return err
 	}
@@ -71,6 +86,9 @@ func updateDNSARecords(cIP net.IP) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("%s : %v\n", ViperKeyFQDNFilters, viper.GetStringSlice(ViperKeyFQDNFilters))
+	fmt.Printf("%s : %v\n", ViperKeyFQDNIgnoreFilters, viper.GetStringSlice(ViperKeyFQDNIgnoreFilters))
 	for _, rec := range records {
 		fmt.Printf("%s %s %s \n", rec.Type, rec.Name, rec.Content)
 
@@ -91,6 +109,16 @@ func updateDNSARecords(cIP net.IP) error {
 
 		if pIP.Equal(cIP) {
 			fmt.Printf("%s is not change\n", pIP.String())
+			continue
+		}
+
+		if !matchFQDNFilter(viper.GetStringSlice(ViperKeyFQDNFilters), rec.Name, true) {
+			fmt.Println("not filtered")
+			continue
+		}
+
+		if matchFQDNFilter(viper.GetStringSlice(ViperKeyFQDNIgnoreFilters), rec.Name, false) {
+			fmt.Println("ignore filtered")
 			continue
 		}
 
@@ -120,4 +148,17 @@ func flareRun(cmd *cobra.Command, args []string) {
 	if err := updateDNSARecords(newIP); err != nil {
 		panic(err.Error())
 	}
+}
+
+func matchFQDNFilter(filters []string, fqdn string, emptyval bool) bool {
+	if len(filters) == 0 {
+		return emptyval
+	}
+	for _, filter := range filters {
+		if strings.Contains(fqdn, filter) {
+			return true
+		}
+	}
+
+	return false
 }

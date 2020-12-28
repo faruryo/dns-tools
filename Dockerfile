@@ -11,4 +11,4 @@ RUN GOOS=linux go build -mod=readonly  -v  -o /dns-tools main.go
 
 FROM alpine:3.12
 COPY --from=builder /dns-tools .
-ENTRYPOINT ["./dns-tools", "gip"]
+ENTRYPOINT ["./dns-tools"]
