@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 
 	"github.com/cloudflare/cloudflare-go"
@@ -31,7 +32,6 @@ The environment variables must be set.
 		},
 		Run: flareRun,
 	}
-	newIP net.IP
 )
 
 const (
@@ -51,7 +51,10 @@ func init() {
 	flare.PersistentFlags().StringSlice(ViperKeyFQDNFilters, []string{}, "FQDN filters")
 	flare.PersistentFlags().StringSlice(ViperKeyFQDNIgnoreFilters, []string{}, "FQDN ignore filters")
 
-	viper.BindPFlags(flare.PersistentFlags())
+	if err := viper.BindPFlags(flare.PersistentFlags()); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
