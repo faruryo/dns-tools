@@ -25,7 +25,9 @@ func Execute() {
 }
 
 func getCurrentNamespace() (string, error) {
-	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+	const nsFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+
+	if data, err := ioutil.ReadFile(nsFile); err == nil {
 		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
 			return ns, nil
 		}
