@@ -23,6 +23,7 @@ import (
 const (
 	// GipConfigMapName is the name of the configmap resource used by gip
 	GipConfigMapName = "dns-tools-gip"
+	getIPEndPoint    = "https://ifconfig.io/ip"
 )
 
 var (
@@ -50,7 +51,7 @@ func getPreviousGlobalIPv4() (net.IP, error) {
 
 	cm, err := cmClient.Get(context.TODO(), GipConfigMapName, metav1.GetOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed Get ConfigMap %s :%s", GipConfigMapName, err)
 	}
 
 	strIP := cm.Data["globalIPv4"]
@@ -63,14 +64,14 @@ func getPreviousGlobalIPv4() (net.IP, error) {
 }
 
 func getCurrentGlobalIPv4() (net.IP, error) {
-	resp, err := http.Get("https://ifconfig.io/ip")
+	resp, err := http.Get(getIPEndPoint)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed GET (%s) : %s", getIPEndPoint, err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to read Body : %s", err)
 	}
 
 	strIP := strings.TrimRight(string(body), "\r\n")
@@ -95,10 +96,11 @@ func saveGlobalIPv4(ip net.IP) error {
 
 		rcm, err := cmClient.Create(context.TODO(), cm, metav1.CreateOptions{})
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed Create ConfigMap %v : %s", cm, err)
 		}
 		log.Printf("Created ConfigMap name: %s, data: %v.", rcm.Name, rcm.Data)
 	} else {
+		log.Printf("Get error : %s", err)
 		// If you have a configmap, overwrite it.
 		log.Printf("Exists ConfigMap name: %s, data: %v.", cm.Name, cm.Data)
 
@@ -106,7 +108,7 @@ func saveGlobalIPv4(ip net.IP) error {
 
 		rcm, err := cmClient.Update(context.TODO(), cm, metav1.UpdateOptions{})
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed Update ConfigMap %v : %s", cm, err)
 		}
 		log.Printf("Updated ConfigMap name: %s, data: %v.", rcm.Name, rcm.Data)
 	}
@@ -131,7 +133,7 @@ func postCloudEvent(obj interface{}) error {
 		cloudevents.ApplicationJSON,
 		obj,
 	); err != nil {
-		return fmt.Errorf("failed SetData, %v : %s", obj, err)
+		return fmt.Errorf("Failed SetData, %v : %s", obj, err)
 	}
 
 	// Set a target.
@@ -140,7 +142,7 @@ func postCloudEvent(obj interface{}) error {
 	// Send that Event.
 	result := c.Send(ctx, event)
 	if cloudevents.IsUndelivered(result) {
-		return fmt.Errorf("failed to send, %v", result)
+		return fmt.Errorf("Failed to send, %v", result)
 	}
 
 	log.Printf("CloudEvents accepted: %t", cloudevents.IsACK(result))
@@ -157,16 +159,16 @@ func globalIPInit() {
 
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		panic(fmt.Errorf("Failed to retrieve cluster config : %s", err))
 	}
 	clientset, err = kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		panic(fmt.Errorf("Failed to retrieve Clientset : %s", err))
 	}
 
 	cns, err := getCurrentNamespace()
 	if err != nil {
-		panic(err.Error())
+		panic(fmt.Errorf("Failed to retrieve Namespace : %s", err))
 	}
 
 	cmClient = clientset.CoreV1().ConfigMaps(cns)
