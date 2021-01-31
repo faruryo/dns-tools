@@ -7,11 +7,11 @@
 
 install
 ```
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.19.0/eventing-crds.yaml
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.19.0/eventing-core.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/eventing-crds.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/eventing-core.yaml
 
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.19.0/in-memory-channel.yaml
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.19.0/mt-channel-broker.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/in-memory-channel.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/mt-channel-broker.yaml
 ```
 
 check
