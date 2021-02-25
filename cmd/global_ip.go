@@ -14,6 +14,7 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -42,7 +43,7 @@ var (
 )
 
 func init() {
-	gipRun.Flags().BoolVar(&isNilfire, "nilfire", isNilfire, "Firing CloudEvents the last time a global IP could not be obtained. Defaults to false.")
+	gipRun.Flags().BoolVar(&isNilfire, "nilfire", isNilfire, "Fire CloudEvents when the previous global IP does not exist. Defaults to false.")
 	gipRun.Flags().DurationVar(&pollInterval, "interval", pollInterval, "Polling interval to check global IP addresses like 5s, 2m, or 3h. Defaults to 5s.")
 	rootCmd.AddCommand(gipRun)
 }
@@ -50,8 +51,12 @@ func init() {
 func getPreviousGlobalIPv4() (net.IP, error) {
 
 	cm, err := cmClient.Get(context.TODO(), GipConfigMapName, metav1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("Failed Get ConfigMap %s :%s", GipConfigMapName, err)
+	if errors.IsNotFound(err) {
+		return nil, err
+	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
+		return nil, fmt.Errorf("Error getting ConfigMap %s: ErrStatus=%v", GipConfigMapName, statusError.ErrStatus.Message)
+	} else if err != nil {
+		return nil, fmt.Errorf("Error getting ConfigMap %s: %w", GipConfigMapName, err)
 	}
 
 	strIP := cm.Data["globalIPv4"]
@@ -86,7 +91,7 @@ func getCurrentGlobalIPv4() (net.IP, error) {
 func saveGlobalIPv4(ip net.IP) error {
 
 	cm, err := cmClient.Get(context.TODO(), GipConfigMapName, metav1.GetOptions{})
-	if err != nil {
+	if errors.IsNotFound(err) {
 		// Create if there is no configmap
 		cm := &corev1.ConfigMap{}
 		cm.Name = GipConfigMapName
@@ -99,8 +104,11 @@ func saveGlobalIPv4(ip net.IP) error {
 			return fmt.Errorf("Failed Create ConfigMap %v : %s", cm, err)
 		}
 		log.Printf("Created ConfigMap name: %s, data: %v.", rcm.Name, rcm.Data)
+	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
+		return fmt.Errorf("Error getting ConfigMap %s: statusError=%v", GipConfigMapName, statusError.ErrStatus.Message)
+	} else if err != nil {
+		return fmt.Errorf("Error getting ConfigMap %s: %w", GipConfigMapName, err)
 	} else {
-		log.Printf("Get error : %s", err)
 		// If you have a configmap, overwrite it.
 		log.Printf("Exists ConfigMap name: %s, data: %v.", cm.Name, cm.Data)
 
@@ -181,13 +189,17 @@ func globalIPRun(cmd *cobra.Command, args []string) {
 		time.Sleep(pollInterval)
 
 		pIP, err := getPreviousGlobalIPv4()
-		if err != nil {
-			log.Printf("%s", err.Error())
+		if errors.IsNotFound(err) {
+			log.Printf("Previous global IPv4 not found: %s", err)
+		} else if err != nil {
+			// Abort the process except for Notfound.
+			log.Printf("Failed to get previous global IPv4: %s", err)
+			continue
 		}
 
 		cIP, err := getCurrentGlobalIPv4()
 		if err != nil {
-			log.Printf("%s", err.Error())
+			log.Printf("Failed to get current global IPv4: %s", err)
 			continue
 		}
 		log.Printf("previous IP: %s, current IP: %s", pIP.String(), cIP.String())
