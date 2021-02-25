@@ -128,7 +128,7 @@ func updateDNSARecords(cIP net.IP) error {
 			Proxied: rec.Proxied,
 		})
 		if err != nil {
-			fmt.Printf("%s\n", err.Error())
+			fmt.Print(err)
 		}
 	}
 
@@ -137,7 +137,7 @@ func updateDNSARecords(cIP net.IP) error {
 
 func flareRun(cmd *cobra.Command, args []string) {
 	if err := flareValidate(); err != nil {
-		panic(fmt.Errorf("Validation error : %s", err.Error()))
+		panic(fmt.Errorf("Validation error: %w", err))
 	}
 
 	newIP := net.ParseIP(args[0])

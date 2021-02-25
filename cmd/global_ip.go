@@ -71,12 +71,12 @@ func getPreviousGlobalIPv4() (net.IP, error) {
 func getCurrentGlobalIPv4() (net.IP, error) {
 	resp, err := http.Get(getIPEndPoint)
 	if err != nil {
-		return nil, fmt.Errorf("Failed GET (%s) : %s", getIPEndPoint, err)
+		return nil, fmt.Errorf("Failed GET (%s): %w", getIPEndPoint, err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read Body : %s", err)
+		return nil, fmt.Errorf("Failed to read Body: %w", err)
 	}
 
 	strIP := strings.TrimRight(string(body), "\r\n")
@@ -101,7 +101,7 @@ func saveGlobalIPv4(ip net.IP) error {
 
 		rcm, err := cmClient.Create(context.TODO(), cm, metav1.CreateOptions{})
 		if err != nil {
-			return fmt.Errorf("Failed Create ConfigMap %v : %s", cm, err)
+			return fmt.Errorf("Failed Create ConfigMap %v: %w", cm, err)
 		}
 		log.Printf("Created ConfigMap name: %s, data: %v.", rcm.Name, rcm.Data)
 	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
@@ -116,7 +116,7 @@ func saveGlobalIPv4(ip net.IP) error {
 
 		rcm, err := cmClient.Update(context.TODO(), cm, metav1.UpdateOptions{})
 		if err != nil {
-			return fmt.Errorf("Failed Update ConfigMap %v : %s", cm, err)
+			return fmt.Errorf("Failed Update ConfigMap %v: %w", cm, err)
 		}
 		log.Printf("Updated ConfigMap name: %s, data: %v.", rcm.Name, rcm.Data)
 	}
@@ -128,7 +128,7 @@ func postCloudEvent(obj interface{}) error {
 	// The default client is HTTP.
 	c, err := cloudevents.NewDefaultClient()
 	if err != nil {
-		return fmt.Errorf("failed to create client, %v", err)
+		return fmt.Errorf("failed to create client, %w", err)
 	}
 
 	log.Printf("%+v", obj)
@@ -141,7 +141,7 @@ func postCloudEvent(obj interface{}) error {
 		cloudevents.ApplicationJSON,
 		obj,
 	); err != nil {
-		return fmt.Errorf("Failed SetData, %v : %s", obj, err)
+		return fmt.Errorf("Failed SetData, %v: %w", obj, err)
 	}
 
 	// Set a target.
@@ -167,16 +167,16 @@ func globalIPInit() {
 
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(fmt.Errorf("Failed to retrieve cluster config : %s", err))
+		panic(fmt.Errorf("Failed to retrieve cluster config: %w", err))
 	}
 	clientset, err = kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(fmt.Errorf("Failed to retrieve Clientset : %s", err))
+		panic(fmt.Errorf("Failed to retrieve Clientset: %w", err))
 	}
 
 	cns, err := getCurrentNamespace()
 	if err != nil {
-		panic(fmt.Errorf("Failed to retrieve Namespace : %s", err))
+		panic(fmt.Errorf("Failed to retrieve Namespace: %w", err))
 	}
 
 	cmClient = clientset.CoreV1().ConfigMaps(cns)
