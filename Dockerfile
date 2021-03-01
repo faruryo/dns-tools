@@ -1,4 +1,4 @@
-FROM golang:1.15.2-alpine3.12 as builder
+FROM golang:1.16.0-alpine3.12 as builder
 
 WORKDIR /workdir
 
@@ -9,6 +9,6 @@ RUN go mod download
 COPY . ./
 RUN GOOS=linux go build -mod=readonly  -v  -o /dns-tools main.go
 
-FROM alpine:3.12
+FROM alpine:3.13
 COPY --from=builder /dns-tools .
 ENTRYPOINT ["./dns-tools"]
