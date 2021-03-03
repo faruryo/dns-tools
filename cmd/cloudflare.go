@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -82,7 +83,7 @@ func updateDNSARecords(cIP net.IP) error {
 		return err
 	}
 
-	records, err := cfAPI.DNSRecords(id, cloudflare.DNSRecord{})
+	records, err := cfAPI.DNSRecords(context.TODO(), id, cloudflare.DNSRecord{})
 	if err != nil {
 		return err
 	}
@@ -123,7 +124,7 @@ func updateDNSARecords(cIP net.IP) error {
 		}
 
 		fmt.Printf("Updating %s => %s\n", pIP.String(), cIP.String())
-		err := cfAPI.UpdateDNSRecord(id, rec.ID, cloudflare.DNSRecord{
+		err := cfAPI.UpdateDNSRecord(context.TODO(), id, rec.ID, cloudflare.DNSRecord{
 			Content: cIP.String(),
 			Proxied: rec.Proxied,
 		})
