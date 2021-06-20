@@ -126,7 +126,7 @@ func saveGlobalIPv4(ip net.IP) error {
 
 func postCloudEvent(obj interface{}) error {
 	// The default client is HTTP.
-	c, err := cloudevents.NewDefaultClient()
+	c, err := cloudevents.NewClientHTTP()
 	if err != nil {
 		return fmt.Errorf("failed to create client, %w", err)
 	}
