@@ -36,7 +36,7 @@ spec:
     targetPort: 8080
 
 ---
-apiVersion: sources.knative.dev/v1beta1
+apiVersion: sources.knative.dev/v1
 kind: SinkBinding
 metadata:
   name: dns-tools

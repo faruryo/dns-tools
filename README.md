@@ -7,11 +7,11 @@
 
 install
 ```
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/eventing-crds.yaml
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/eventing-core.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.23.1/eventing-crds.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.23.1/eventing-core.yaml
 
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/in-memory-channel.yaml
-kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.20.1/mt-channel-broker.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.23.1/in-memory-channel.yaml
+kubectl apply --filename https://github.com/knative/eventing/releases/download/v0.23.1/mt-channel-broker.yaml
 ```
 
 check
@@ -31,9 +31,15 @@ Cloudflare tokens can be created at User Profile > API Tokens > API Tokens. The 
 - Zone Resources:
   - Include - All Zones
 
+Set environment variables; we recommend using [direnv](https://github.com/direnv/direnv).
+
 ```shell
 export CLOUDFLARE_API_TOKEN="hogehoge"
+```
 
+Create a secret using an environment variable.
+
+```shell
 kubectl create secret generic dns-tools \
     --from-literal=CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN
 ```
