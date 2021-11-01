@@ -102,6 +102,8 @@ github.com/cloudevents/sdk-go/v2 v2.4.1 h1:rZJoz9QVLbWQmnvLPDFEmv17Czu+CfSPwMO6l
 github.com/cloudevents/sdk-go/v2 v2.4.1/go.mod h1:MZiMwmAh5tGj+fPFvtHv9hKurKqXtdB9haJYMJ/7GJY=
 github.com/cloudevents/sdk-go/v2 v2.5.0 h1:Ts6aLHbBUJfcNcZ4ouAfJ4+Np7SE1Yf2w4ADKRCd7Fo=
 github.com/cloudevents/sdk-go/v2 v2.5.0/go.mod h1:nlXhgFkf0uTopxmRXalyMwS2LG70cRGPrxzmjJgSG0U=
+github.com/cloudevents/sdk-go/v2 v2.6.1 h1:yHtzgmeBvc0TZx1nrnvYXov1CSvkQyvhEhNMs8Z5Mmk=
+github.com/cloudevents/sdk-go/v2 v2.6.1/go.mod h1:nlXhgFkf0uTopxmRXalyMwS2LG70cRGPrxzmjJgSG0U=
 github.com/cloudflare/cloudflare-go v0.13.4 h1:3Dm3p31K/BxKZhy+Ll2Pf7yStprJtgBKi52ee0NPcAU=
 github.com/cloudflare/cloudflare-go v0.13.4/go.mod h1:jGTn0jEGfm8MVoTjBdbVDPHDkLmHdvcVIbYWTklYTvs=
 github.com/cloudflare/cloudflare-go v0.14.0 h1:gFqGlGl/5f9UGXAaKapCGUfaTCgRKKnzu2VvzMZlOFA=
@@ -118,6 +120,8 @@ github.com/cloudflare/cloudflare-go v0.21.0 h1:DWCTuT3E6piKVeeG/o8475cYINsRPMttP
 github.com/cloudflare/cloudflare-go v0.21.0/go.mod h1:sPWL/lIC6biLEdyGZwBQ1rGQKF1FhM7N60fuNiFdYTI=
 github.com/cloudflare/cloudflare-go v0.24.0 h1:ij4wyHWiBx2YXuqkDPQo17WkpbEGBvra5ipWT7PWwig=
 github.com/cloudflare/cloudflare-go v0.24.0/go.mod h1:sPWL/lIC6biLEdyGZwBQ1rGQKF1FhM7N60fuNiFdYTI=
+github.com/cloudflare/cloudflare-go v0.27.0 h1:7Pwn1vdLbZuDUIcukfyD2laMCyFcsvx/txqNA+UrgjM=
+github.com/cloudflare/cloudflare-go v0.27.0/go.mod h1:sPWL/lIC6biLEdyGZwBQ1rGQKF1FhM7N60fuNiFdYTI=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=

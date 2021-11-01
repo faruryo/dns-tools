@@ -3,8 +3,8 @@ module github.com/faruryo/dns-tools
 go 1.15
 
 require (
-	github.com/cloudevents/sdk-go/v2 v2.5.0
-	github.com/cloudflare/cloudflare-go v0.24.0
+	github.com/cloudevents/sdk-go/v2 v2.6.1
+	github.com/cloudflare/cloudflare-go v0.27.0
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
