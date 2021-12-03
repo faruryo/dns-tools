@@ -9,6 +9,6 @@ RUN go mod download
 COPY . ./
 RUN GOOS=linux go build -mod=readonly  -v  -o /dns-tools main.go
 
-FROM alpine:3.14
+FROM alpine:3.15
 COPY --from=builder /dns-tools .
 ENTRYPOINT ["./dns-tools"]
