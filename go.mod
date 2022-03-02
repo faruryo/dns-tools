@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
-	github.com/cloudflare/cloudflare-go v0.29.0
+	github.com/cloudflare/cloudflare-go v0.34.0
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
